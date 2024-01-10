@@ -19,7 +19,7 @@ class CebraspeBot(commands.Bot):
         super().__init__(command_prefix='?', intents=intents)
 
     @discord.utils.cached_property
-    def guilds(self) -> discord.Guild:
+    def guild(self) -> discord.Guild:
         guild = self.get_guild(config['bot']['guild_id'])
 
         if not guild:
