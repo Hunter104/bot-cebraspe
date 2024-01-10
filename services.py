@@ -39,6 +39,7 @@ class Services(commands.Cog):
 
         self.message: discord.Message | None = None
 
+        self.last_time = None
         self.check_services.start()
 
     async def check_service(self, service: Service) -> None:
@@ -50,15 +51,28 @@ class Services(commands.Cog):
 
         service.last_result = is_active
         service.last_time = discord.utils.utcnow()
-        await self.update_status_message(service)
 
-    async def update_status_message(self, service: Service) -> None:
-        content = (f'{service.nome} status: {'Active' if service.last_result else 'Inactive'}'
-                   f' - Last checked on: {service.last_time.strftime('%c')}')
+    async def update_status_message(self) -> None:
+        embed = discord.Embed(title="Estado de serviços",
+                              colour=0x00b0f4,
+                              timestamp=self.last_time)
+
+        for service in self.services:
+            embed.add_field(name=f"Estado - {service.nome}",
+                            value=f"{'Ativo  🟢' if service.last_result else 'Inativo 🔴'}",
+                            inline=False)
+
+        embed.set_image(url="https://cubedhuang.com/images/alex-knight-unsplash.webp")
+
+        embed.set_thumbnail(url=self.bot.user.avatar.url)
+
+        embed.set_footer(text="Last update",
+                         icon_url="https://slate.dan.onl/slate.png")
+
         if self.message:
-            await self.message.edit(content=content)
+            await self.message.edit(content='', embed=embed)
         else:
-            self.message = await self.channel.send(content)
+            self.message = await self.channel.send(content='', embed=embed)
             with open('config.yaml', 'w') as f:
                 config['bot']['message_id'] = self.message.id
                 yaml.dump(config, f)
@@ -73,16 +87,16 @@ class Services(commands.Cog):
         assert isinstance(channel, discord.TextChannel)
         return channel
 
-    @tasks.loop(seconds=12)
+    @tasks.loop(minutes=3)
     async def check_services(self) -> None:
         # TODO : add logs
-        print('checking services')
         for service in self.services:
             await self.check_service(service)
+        self.last_time = discord.utils.utcnow()
+        await self.update_status_message()
 
     @check_services.before_loop
     async def before_check_services(self) -> None:
-        print('waiting for bot')
         await self.bot.wait_until_ready()
         # imporoviso para só pegar mensagem quando o bot estiver ativo
         if config['bot']['message_id'] is not None:
