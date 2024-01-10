@@ -87,7 +87,7 @@ class Services(commands.Cog):
         assert isinstance(channel, discord.TextChannel)
         return channel
 
-    @tasks.loop(minutes=3)
+    @tasks.loop(minutes=5)
     async def check_services(self) -> None:
         # TODO : add logs
         for service in self.services:
