@@ -37,7 +37,8 @@ class Services(commands.Cog):
                 last_time=discord.utils.utcnow())
             self.services.append(service_obj)
 
-        self.status_messages = {}
+        self.message: discord.Message | None = None
+
         self.check_services.start()
 
     async def check_service(self, service: Service) -> None:
@@ -52,16 +53,15 @@ class Services(commands.Cog):
         await self.update_status_message(service)
 
     async def update_status_message(self, service: Service) -> None:
-        print('updating status message')
         content = (f'{service.nome} status: {'Active' if service.last_result else 'Inactive'}'
                    f' - Last checked on: {service.last_time.strftime('%c')}')
-        if service.nome in self.status_messages:
-            message_id = self.status_messages[service.nome]
-            message = await self.channel.fetch_message(message_id)
-            await message.edit(content=content)
+        if self.message:
+            await self.message.edit(content=content)
         else:
-            new_message = await self.channel.send(content)
-            self.status_messages[service.nome] = new_message.id
+            self.message = await self.channel.send(content)
+            with open('config.yaml', 'w') as f:
+                config['bot']['message_id'] = self.message.id
+                yaml.dump(config, f)
 
     @discord.utils.cached_property
     def channel(self) -> discord.TextChannel:
@@ -84,6 +84,9 @@ class Services(commands.Cog):
     async def before_check_services(self) -> None:
         print('waiting for bot')
         await self.bot.wait_until_ready()
+        # imporoviso para só pegar mensagem quando o bot estiver ativo
+        if config['bot']['message_id'] is not None:
+            self.message = await self.channel.fetch_message(config['bot']['message_id'])
 
 
 async def setup(bot: CebraspeBot):

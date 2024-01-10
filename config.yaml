@@ -1,7 +1,7 @@
 bot:
   channel_id: 1194429302712836116
   guild_id: 1126559457376227400
-
+  message_id: 1194632779909054566
 services:
-  - nome: cebraspe
-    url: https://www.cebraspe.org.br/
+- nome: cebraspe
+  url: https://www.cebraspe.org.br/
