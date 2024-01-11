@@ -29,6 +29,7 @@ class CebraspeBot(commands.Bot):
 
     async def on_ready(self):
         print(f'Online with {len(self.users)} users')
+        print(f'hellooooooo')
 
     async def setup_hook(self) -> None:
         timeout = aiohttp.ClientTimeout(total=10)
