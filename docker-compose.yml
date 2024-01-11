@@ -1,0 +1,7 @@
+version: v0.5
+
+services:
+  bot:
+    build: .
+    environment:
+      - TOKEN=${TOKEN}
