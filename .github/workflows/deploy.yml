@@ -8,19 +8,18 @@ on:
 
 jobs:
   deploy:
-    runs-on:
-      ubuntu-latest:
-      steps:
-        - name: Checkout ccode
-          uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ccode
+        uses: actions/checkout@v2
 
-        - name: Build and deploy
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            key: ${{ secrets.SSH_KEY }}
-            host: ${{ secrets.SSH_HOST }}
-            username: ${{ secrets.SSH_USERNAME }}
-            password: ${{ secrets.SSH_PASSWORD }}
+      - name: Build and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
 
           script: |
             cd bot-cebraspe
